@@ -1,15 +1,10 @@
 //Buffer的查找，截取,切分等操作
 let b=new Buffer('aaa--bbb--ccc');
 
-// //查找indexOf
-// console.log(b.indexOf('--'))
-/*   b.split('--')*/
+console.log(b.indexOf('--'));
 
-// //截取slice,不包含结尾项
-// console.log(b.slice(0,5).toString())  
-// console.log(b.toString())
-//name="user"   '='  name,user  arr[1]
-//
+console.log(b.slice(0,3).toString());
+
 
 //切分
 Buffer.prototype.split=Buffer.split|| function(b){  //b  需要通过切分的分隔符

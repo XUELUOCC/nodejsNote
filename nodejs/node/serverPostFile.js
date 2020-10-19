@@ -4,7 +4,7 @@ const fs=require('fs');
 const url=require('url');
 const querystring=require('querystring');
 const common=require('./lib/common.js');
-const uuid=require('node-uuid');
+const uuid=require('uuid');
 
 let server=http.createServer((req,res)=>{
     //get
