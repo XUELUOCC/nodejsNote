@@ -9,7 +9,11 @@ const uuid=require('uuid');
 let server=http.createServer((req,res)=>{
     //get
     let {pathname,query}=url.parse(req.url,true)
-    // console.log(pathname,query)
+    console.log(pathname.slice(1,pathname.length),query)
+    if(pathname!=='/upload'){
+        res.writeHeader(404)
+        res.write('Not Found,接口错误')
+    }
 
     //post
     let str='';
@@ -92,10 +96,11 @@ let server=http.createServer((req,res)=>{
                         fs.writeFile(path,content,err=>{
                             if(err){
                                 console.log('文件写入失败')
+                                // res.write('失败')
                             }else{
                                 console.log('文件写入成功')
                                 files[name]={filename,path,type};
-                                console.log(files)
+                                console.log(res)
                             }
                         })
 
@@ -105,7 +110,7 @@ let server=http.createServer((req,res)=>{
              }
         }
        
-
+        // res.write('chenggong')
         res.end();
     })
 })
