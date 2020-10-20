@@ -30,16 +30,16 @@ let server=http.createServer((req,res)=>{
             }else{
                 sendFile();
             }
-              //重新加载文件
-              function sendFile(){
+            //重新加载文件
+            function sendFile(){
                 let rs=fs.createReadStream(`file/${pathname}`);
                 res.setHeader('Last-Modified',stat.mtime.toGMTString());  //服务端重新将时间传给客户端
                 rs.pipe(res);  //流操作
-                 res.on('error',err=>{
+                res.on('error',err=>{
                      res.writeHeader(404);
                      res.write('文件加载失败');
                      res.end();
-                 })
+                })
             }
         }
     })
