@@ -1,8 +1,19 @@
 const cluster=require('cluster');
+const os=require('os');
+const http=require('http');
+const process=require('process') //当前进程的信息模块
 
 if(cluster.isMaster){
-    console.log('是主进程，此时需要分裂子进程fork');
-    cluster.fork(); //分裂两个子进程
+    for(let i=0;i<os.cpus().length;i++){
+        cluster.fork(); //分裂成子进程，充分利用cpu内核
+    }
+    console.log('主进程');
 }else{
-    console.log('不是主进程')
+    let server=http.createServer((req,res)=>{
+        console.log(process.pid)
+        res.write('aaaa');
+        res.end();
+    })
+    server.listen(8080)
+    console.log('服务器已经开好了')//父子之间共享一个端口，共享句柄
 }
