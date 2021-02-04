@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="http://localhost:8081/socket.io/socket.io.js"></script>
+    <script>
+        let sock=io.connect('ws://localhost:8081/'); //连接ws服务器
+        sock.emit('aaa',12,5,8); //发送给服务端，事件名称aaa,发送数据12,5,8
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

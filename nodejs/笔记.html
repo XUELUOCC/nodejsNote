@@ -297,6 +297,8 @@
                     ----进程调度--存在开销
                         ----多个进程之间，只有第一个进程满了，才会启动第二个，第二个满了，第三个才会启动
                             ----系统最高效的做法
+                        
+                    ----主进程一般会等待子进程
 
             12. nodejs的全局对象
                         ----JavaScript 中有一个特殊的对象，称为全局对象（Global Object），它及其所有属性都可以在程序的任何地方访问，即全局变量。
@@ -333,8 +335,72 @@
 
                         ----5.保存表情和图片
                             ----一般是将之存成文件，数据库保存文件的路径
+                ----数据库的导入导出数据
+                        ----导出：点击表，转储sql文件，（假，无意义的数据---仅结构；真实有用的数据---结构和数据）
+                        ----导入：导入sql文件，前提是必须先建立库，然后右键数据库，运行sql文件，成功后，F5刷新
             
-            
+            14.nodejs导入数据库
+                ----1.--npm init  初始化文件夹
+                ----2.导入npm的mysql模块
+                    ----npm i mysql -D
+                ----3.新建nodejs文件，开始创建连接
+                        1. 引入mysql模块
+                        2.mysql中的createConnection创建连接，
+                            --let db=mysql.createConnection({host:'',port:,user:'',password:'',database:''})
+                            --参数：
+                                host:数据库地址
+                                port:数据库端口
+                                user:数据库用户名
+                                password:数据库用户密码
+                                database:连接数据库中的哪个表，表的名称
+                        3.数据库的增删改查
+                            数据库中右键点击相应的增删改查选项
+                            --增：INSERT
+                                -----新增的数据不会重用已删除的ID
+                                INSERT INTO 表名 (字段列表) VALUES;
+                                INSERT INTO user_table (ID,name,gender,chinese,math,english) VALUES(0,'张三','男',30,50,100);
+                            --删：DELETE
+                                DELETE FROM 表名 条件
+                                DELETE FROM USER_TABLE WHERE ID=2;
+                                DELETE FROM USER_TABLE WHERE name='小明';
+                            --改：UPDATE
+                                UPDATE 表名 SET 字段=值,字段=值... WHERE 条件
+                                UPDATE user_table SET chinese=100,math=90 WHERE ID=3;
+                            --查：SELECT
+                                特点：复杂，变幻多端
+                                基本用法：
+                                SELECT 字段列表 FROM 表名 WHERE 条件
+                                SELECT name,gender FROM user_table WHERE ID=3
+                        4.操作数据库
+                            --db.query('想干啥-sql语句-增删改查',(err,data)=>{
+                                if(err){
+                                    console.log('错了'+err)
+                                }else{
+                                    console.log(data)
+                                }
+                            })
+                            --db.query('INSERT INTO user_table (ID,name,gender,chinese,math,english) VALUES(0,'张三','男',30,50,100)',(err,data)=>{
+                                if(err){
+                                    console.log('错了'+err)
+                                }else{
+                                    console.log(data)
+                                }
+                            })
+                ----nodejs操作数据库的性能优化
+                    ---一个数据库对应多个web服务器
+                    ---缺点：当全局只有一个数据库时，如果此数据库操作特别慢时，会导致之后的服务器出现卡顿，
+                            因为整个web服务器都在等待之前的数据库操作完成
+                    ---优化：使用--连接池
+                            原理：同时开启多个连接，将多个连接存在一个数组中，如果第一个连接卡顿，则直接取第二个连接，
+                                    用完之后，将之放回原处
+                         mysql.createConnection({}) =====> mysql.createPool({})
+                         默认连接数---10
+
+            15.websocket
+                ----原理：
+                        首先websocket是一个双向通信，但它不能和浏览器直接进行连接，不能独立存在，浏览器只认http协议
+                        1.浏览器先与http进行连接，获取key，然后通过key，再与websocket进行连接
+
             -->
 </body>
 </html>
