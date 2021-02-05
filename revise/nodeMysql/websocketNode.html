@@ -6,8 +6,20 @@
     <title>Document</title>
     <script src="http://localhost:8081/socket.io/socket.io.js"></script>
     <script>
-        let sock=io.connect('ws://localhost:8081/'); //连接ws服务器
+        let sock=io('ws://localhost:8081/',{'transports': ['websocket']}); //连接ws服务器
+        console.log(sock)
         sock.emit('aaa',12,5,8); //发送给服务端，事件名称aaa,发送数据12,5,8
+        sock.on('t',function(ts){
+            console.log(ts)
+        })
+        /*
+        1.io('接口地址',配置)，'transports': ['websocket']：因为接口是http，
+        要告诉浏览器要以ws接口处理才可以成功。
+        2.socket.emit('message', 数据)，message：这是跟后台定好的字段，
+        前端以'message'标识给他传数据，后台也有一个以'message'命名的函数来接收处理前端数据。
+        3.socket.on('response', function(数据) {})，response：这是跟后台定好的字段，
+        后台处理好数据以'response'为标识返回数据，前端会在‘response’函数里处理后台的数据
+        */
     </script>
 </head>
 <body>

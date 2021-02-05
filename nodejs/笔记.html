@@ -400,6 +400,45 @@
                 ----原理：
                         首先websocket是一个双向通信，但它不能和浏览器直接进行连接，不能独立存在，浏览器只认http协议
                         1.浏览器先与http进行连接，获取key，然后通过key，再与websocket进行连接
+                        2.websocket是socket在web端的实现
+                ----基本实例建立
+                    --客户端发送信息给服务端,接收服务端的信息
+                    --服务器发送信息给客户端，接收客户端的信息
+                    服务端页面
+                        --1.引入模块
+                            const io=require('socket.io')();
+                            const http=require('http');
+                        --2.服务端--创建http服务器，同时通过socket.io的监听事件监听http服务器
+                            监听后，所有到达http服务器请求啥的，都会转到socket服务器上
+                            let wsServer=io.listen/attach(httpServer);
+                            wsServer.on('connection',sock=>{
+                                sock.on('事件名',function(){})   接收数据
+                                sock.on('t',function(a,b,c){
+                                    console.log(a,b,c)
+                                })
+                                sock.emit('事件名',数据)         发送数据
+                                sock.emit('b',new Date().getTime())
+                            })
+                        --3.客户端html
+                            1.先引入socket-client文件
+                                <script src="http://localhost:8081/socket.io/socket.io.js"></script>
+                            2.连接ws服务器
+                                let sock=io('http://localhost:8081/',{'transports': ['websocket']})
+                                sock.on('事件名',function(){})   接收数据
+                                sock.on('t',function(a,b,c){
+                                    console.log(a,b,c)
+                                })
+                                sock.emit('事件名',数据)         发送数据
+                                sock.emit('b',new Date().getTime())
+                            3.配置，事件说明
+                                1.io('接口地址',配置)，'transports': ['websocket']：因为接口
+                                  是http，要告诉浏览器要以ws接口处理才可以成功。
+                                2.socket.emit('message', 数据)，message：这是跟后台定好的字段，
+                                  前端以'message'标识给他传数据，后台也有一个以'message'命名
+                                  的函数来接收处理前端数据。
+                                3.socket.on('response', function(数据) {})，response：这是跟后台
+                                  定好的字段，后台处理好数据以'response'为标识返回数据，前端会
+                                  在‘response’函数里处理后台的数据
 
             -->
 </body>
