@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="http://localhost:8082/socket.io/socket.io.js"></script>
+    <style>
+        *{
+            padding:0;
+            margin:0;
+        }
+        p{
+            color:red;
+            text-align: center;
+            width:100%;
+            height:20px;
+            line-height:20px;
+            margin:10px 0;
+            display:none;
+        }
+        .content{
+            width:300px;
+            margin:10px auto;
+            
+        }
+        #uls{
+            width:100%;
+            height:200px;
+            overflow: auto;
+            border:1px solid #333;
+            margin-bottom:10px;
+        }
+        textarea{
+            width:80%;
+            height:20px;
+        }
+        #btn{
+            width:16%;
+            height:20px;
+        }
+        .item{
+            color:red;
+            text-align: right;
+        }
+    </style>
+</head>
+<script>
+    let sock=io('http://localhost:8082/',{'transports':['websocket']});
+    sock.on('connect',()=>{
+        document.getElementById('text_box').style.display='none';
+    });
+    sock.on('disconnect',()=>{
+        document.getElementById('text_box').style.display='block'
+    })
+    window.onload=function(){
+        let text=document.getElementById('text');
+        let btn=document.getElementById('btn');
+        let uls=document.getElementById('uls');
+        btn.onclick=function(){
+            // console.log(text.value);
+            sock.emit('msg',text.value);
+            let lis=document.createElement('li');
+            lis.innerText=text.value;
+            lis.className='item'
+            uls.appendChild(lis);
+        }
+        sock.on('msg',str=>{
+            console.log(str)
+            let lis=document.createElement('li');
+            lis.innerHTML=str;
+            uls.appendChild(lis);
+        })
+    }
+</script>
+<body>
+    <div class="content">
+        <p id="text_box">发送信息失败，请检查网络</p>
+        <ul id="uls">
+
+        </ul>
+        <textarea  name="" id="text" ></textarea>
+        <button id="btn">发送</button>
+    </div>
+   
+</body>
+</html>
