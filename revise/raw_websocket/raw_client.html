@@ -6,7 +6,23 @@
     <title>Document</title>
 </head>
 <script>
-      let ws=new WebSocket('ws://localhost:8080/');  
+      let sock=new WebSocket('ws://localhost:8080/');  
+        /*
+        sock.onopen=function(){}-----表示连接上
+        sock.onmessage=function(){}----表示有数据过来
+        sock.onclose=function(){}-----表示连接断开
+        sock.send('xxxxx')----传递数据
+        */
+       sock.onopen=function(){
+           alert('连接上了')
+           sock.send('gggggg')
+       }
+       sock.onmessage=function(){
+           alert('有数据过来')
+       }
+       sock.onclose=function(){
+           alert('连接关闭，断开')
+       }
 </script>
 <body>
 

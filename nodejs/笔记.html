@@ -480,6 +480,33 @@
                                     lis.innerHTML=str;
                                     uls.appendChild(lis);
                                 })
+            
+            17.websocket的原理解释
+                ----websocket是一个基于http协议的协议，数据通过http后，会传给http一个密钥，方便websocket和http相互验证，
+                    验证通过后，此时http协议会进行一个“协议升级”(就是状态码101)，升级之后的所有的数据就都是websocket数据
+                ----创建连接后，数据会先通过net,然后再通过http，http和websocket通过数据
+                ----步骤
+                    ---1.创建一个net模块的服务器
+                            let netServer=net.createServer( sock=>{})
+                    ---2.在net模块中进行握手过程，进行websocket连接
+                            ---1.监听data事件，当数据过来后，进行监听----握手过程,握手只进行一次，故是once
+                                sock.once('data',data=>{
+                                    ---拿到数据中的http的header
+                                        ---判断header的协议类型是否是websocket，
+                                        ---判断websocket的版本类型是否是13，
+                                        ---如果上述条件符合，进行http和websocket的key校验
+                                        ---校验完成，进行sock.write()
+                                            ---sock.write(`HTTP/1.1 101 Switching Protocols\r\nupgrade:websocket\r\nConnection:Upgrade\r\nSec-WebSocket-Accept:
+                                                ${key2}\r\n\r\n`);
+                                        ---监听data，传递过来的数据，此时监听的数据就全部是websocket的数据
+                                            ---sock.on('data',data=>{})
+                                })
+                                //监听服务断开事件end
+                                sock.on('end',()=>{
+
+                                })
+
+                ----
             -->
 </body>
 </html>
