@@ -18,15 +18,16 @@ function md5_2(str){
 }
 
 let db=mysql.createPool({
-    host:'localhost',
+    host:'192.168.44.128',
     port:3306,
     user:'root',
-    password:'root',
+    password:'123456',
     database:'user'
 });
 let server=http.createServer((req,res)=>{
     let {pathname,query}=url.parse(req.url,true);
     let {user,pass}=query;
+    console.log(pathname)
     switch(pathname){
         case '/reg':
             //校验
@@ -44,7 +45,9 @@ let server=http.createServer((req,res)=>{
                 res.end();
             }else{
                 console.log(user)
+                console.log(`SELECT * FROM user WHERE username='${user}'`)
                 db.query(`SELECT * FROM user WHERE username='${user}'`,(err,data)=>{
+                    
                     if(err){
                         console.log('regSelect'+err)
                         res.write('{"err":1,"msg":"database error "}');
@@ -101,9 +104,9 @@ let server=http.createServer((req,res)=>{
             }
         break;
         default:
-            let rs=fs.createReadStream(`www${pathname}`);
-            let gz=zlib.createGzip();
+            let rs=fs.createReadStream(`www${req.url}`);
             res.setHeader('content-encoding','gzip');
+            let gz=zlib.createGzip();
             rs.pipe(gz).pipe(res);
             rs.on('error',err=>{
                 res.writeHeader(404);

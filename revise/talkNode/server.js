@@ -4,7 +4,7 @@ const io=require('socket.io')();
 let httpServer=http.createServer();
 httpServer.listen(8082);
 
-let wsServer=io.listen(httpServer);
+let wsServer=io.attach(httpServer);
 let wsArr=[];  //连接ws的服务器数组
 wsServer.on('connection',sock=>{
     //每连接一个就push进数组，同时接收到客户端的信息后，需要将信息分发到其他服务器
