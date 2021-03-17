@@ -47,8 +47,8 @@
             
 
             ----4.书写响应内容
-                    ----若无响应内容，则服务没有下一步，一直在加载
-                        ---res.end()加不加无所谓哦
+                    ----若无响应内容，则服务没有下一步，一直在加载，俗称：挂起
+                        ---res.end()加不加无所谓
 
                     ----res.write()------不能书写数组，对象等复杂数据类型
 
@@ -56,14 +56,15 @@
 
                     ----书写状态码设置header
                             ----res.sendStatus(404)
-                            ----类似于原生的
+                            ----类似于原生中的
                                 res.writeHeader(404);
                                 res.write('Not Found');
                                 res.end();
 
                     server.get('/aaa',(req,res,next)=>{
                         res.write('ggggggg'); 
-                        res.send([1,2,2,3])
+                        res.send([1,2,2,3]);
+                        res.sendStatus(200)
                         res.end()
                     }) 
 
@@ -94,7 +95,7 @@
                         })
 
         6.express的方法
-        ---响应方法
+            ---响应方法
             res.send()
             res.sendFile('a.txt')
             res.sendStatus(500)
@@ -102,12 +103,12 @@
                 ---重定向
                 ---例如将localhost:8080/a 重定向到http://www.baidu.com
                 
-        7。express的数据交互post,get
+        7.express的数据交互post,get
             get:
                 ---获取前台传递的数据
                     req.query
             post:
-                ---获取前台传递的数据
+                ---获取前台传递提交的数据
                     ---使用中间件body-parser获取
                         ---cnpm i body-parser -D
                         const body=require('body-parser');
@@ -115,6 +116,153 @@
                         server.post('/upload',(req,res,next)=>{
                             console.log(req.body)
                         })
+
+        8.处理文件的post提交(上传文件)
+            ---使用的是模块中间件multer
+                ---处理post提交的文件数据 格式multipart/form-data
+            ---步骤
+                1.安装 cnpm i multer -D
+                2.使用中间件
+                    const multer=require('multer');
+                    server.use(multer({dest:'文件路径uplooad/'}).any())  //.any()表示任何文件都可以接收和读取
+                    server.ppst('/upload',(req,res,next)=>{
+                        console.log(req.files)   //代表是文件的信息和内容
+                        console.log(req.body)    //代表是body中的基本信息，表单中的普通表单提交的数据
+                    })
+
+        9.处理cookie和session
+            ----(用处：记录用户登录状态)
+                    --当cookie中存在用户数据时，请求session，session存储信息，可对信息进行修改，并返回一个有sess_id的
+                    cookie，当session对存储的信息进行了修改，此时传过来的用户的信息将会失效切不匹配
+            ----cookie是一个会话级的存储，大小 4KB 左右，用于浏览器将服务器设置的信息重新带给服务器进行验证，不支持跨域，
+                    在浏览器清空缓存或超过有效期后失效，不能存放敏感信息，session 是专门用于存储最初设置给浏览器 cookie
+                    数据的地方
+            ----一般情况下，浏览器的网站如果是处于一种刚注册的‘新人’状态，第一次访问服务器时，会发给服务器一个cookie,
+                通过服务器后，session会下发一个秘钥sess_id给cookie,服务器返回给浏览器一个cookie,cookie中就会存在一
+                个sess_id(session的id表明身份)。
+                下次访问时，浏览器将会将cookie带给服务器，服务器此时将会根据sess_id辨别身份
+
+            ----原理：
+                --客户端首先会请求Session，而当服务端检查客户端中的Cookie没有相应的Session id时，会通过-一定方式为其
+                生成一个新的Session id, 而如果Cookie中存在该Session id并且没有过期时，则直接返回Session数据。
+            
+            ----cookie-parser的步骤：
+                1.安装cookie-parser
+                    cnpm i cookie-parser -D
+                2.使用中间件
+                    const cookieParser=require('cookie-parser');
+                    server.use(cookieParser({}));
+                    server.get('/a',(req,res,next)=>{
+                        console.log(req.cookies);   //接收cookie,其方法是cookieParser中的，通过其中间件进行接收
+                        res.cookie('a',12,{配置项}); //通过express中的本身方法进行发送，但其本身并不能接收
+                        res.cookie(名称，值，{配置项})
+                    })
+                3.cookie防篡改（签名）
+                    1.cookieParser中的配置项中添加秘钥
+                        server.use(cookieParser(
+                            'akbargvlregvle'
+                        ));
+                    2.发送的cookie中---加密
+                        res.cookie('c',33,{signed:true})  //代表加密存在签名
+
+                    3.中间件中会将cookie的内容和添加的秘钥进行一次运算，得出‘签名’，通过签名实现防篡改
+                        console.log(req.signedCookies) //获取签名的cookie
+            
+            --cookie-session（借助cookie来实现的session）的步骤：
+                1.安装
+                    cnpm i cookie-session -D
+                2.使用cookie-session
+                    const cookieSession=require('cookie-session');
+                    server.use(cookieSession({
+                        keys:['jkdbfvjd','dkfjvni','uioreger'....], //keys是一个数组，添加keys，实现签名，增加session的安全性
+                        secret:'fdbsdffdb'   //也可手动添加keys,但安全性比keys差点
+                    }))
+                    server.get('/a',(req,res,next)=>{
+                        console.log(req.session) //获取session
+                    })
+                3.实现通过session来判断网站访问次数
+                    server.get('/a',(req,res,next)=>{
+                        // console.log(req.session)
+                        if(!req.session['count']){
+                            req.session.count=1;
+                        }else{
+                            req.session.count++;
+                        }
+                        res.send(`欢迎您${req.session.count}来访`)
+                        res.end();
+                    })
+
+            --session劫持攻击方式
+                通过获取其他用户的cookie的sess_id，通过此sess_id来通过服务器的校验
+        
+        10.路由
+            ----根据不同的地址url的不同，调用不同的代码
+            ----路由调用是从上到下依次执行
+            ----步骤
+                1.创建路由
+                    let articleRouter=express.Router();
+                2.指定什么时候使用此路由
+                    server.use('/article',articleRouter); //当路径是/article的时候使用此路由
+                3.创建路由列表和内容
+                    articleRouter.get('/',(req,res,next)=>{  //----/article
+                        res.send('文章首页')
+                    })
+                    articleRouter.get('/:id',(req,res,next)=>{  //----/article/123
+                        res.send('文章内容')
+                    })
+                    articleRouter.get('/:id/comment',(req,res,next)=>{  //----/article/123/comment
+                        res.send('文章评论')
+                    })
+                    articleRouter.get('/:id/edit',(req,res,next)=>{   //----/article/123/edit
+                        res.send('文章编辑')
+                    })
+                4.路由和路由之间可以进行嵌套
+                    let aaaRouter=express.Router();  //创建aaaRouter的路由
+                    articleRouter.use('/aaa',aaaRouter);  //当article后的地址是/aaa时，使用aaaRouter
+                    
+                    aaaRouter.get('/a',(req,res,next)=>{  //当article的路径后是/aaa时，调用aaaRouter---/article/aaa/a
+                        res.send('a')
+                    })
+                    aaaRouter.get('/b',(req,res,next)=>{  //---/article/aaa/b
+                        res.send('b');
+                    })
+                    aaaRouter.get('/c',(req,res,next)=>{  //---/article/aaa/c
+                        res.send('c');
+                    })
+                5.可将多个路由拆分为多个路由文件，然后需要用的时候直接require('./routes/aaa')引入
+                    --步骤：
+                        1.将相应模块进行拆分，主文件中只保留调用,将创建的路由名换成调用require('')
+                            主文件：
+                                旧：server.use('/article',articleRouter); 
+                                新：server.use('/article',require('./routes/article'))
+                        2.拆分的文件模块中，最后必须暴露出来,否则require不生效
+                            module.exports=router;
+
+                6.路由是从上到下，可设置404判断
+                    主文件中：
+                    server.use((req,res,next)=>{
+                        res.send('404，请求无法找到')
+                    })
+
+
+        11.服务器渲染
+            ----前端渲染：生成html
+            ----后端渲染: 生成html
+            ----浏览器渲染：
+                    ----输入url===>加载===>下载html，css,js等===>渲染（通过某种工具画出来）
+
+        12.模块化
+            任何语言（除了js）都自带了模块系统，所以不存在真正意义上的全局变量
+            模块系统一般遵循CMD规范（公共模块定义）：
+                exports.a=xxxx  
+                require('../a.txt') 
+                module.exports={
+                    a=4,b=5
+                } 
+            前端（带有模块系统）：
+                vue,,angular,,react等------对js的一种补充
+            后端（nodejs）：自带模块系统
+                    
         */
     </script>
 </body>
