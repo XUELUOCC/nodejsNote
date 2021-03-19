@@ -69,7 +69,7 @@
                     }) 
 
         4.express读取文件（使用中间件）
-            ----使用express的static中间件，
+            ----使用express的static中间件
                 ----读取静态文件，不过是没有选择的返回文件，只要是文件都会返回
                 ----关于原生nodejs中的压缩gzip，缓存304等都已解决
                 ----通过server.use(中间件)的方法
@@ -246,8 +246,10 @@
 
 
         11.服务器渲染
-            ----前端渲染：生成html
-            ----后端渲染: 生成html
+            ----后端渲染：生成html
+                    优点：安全，稳定，利于SEO，渲染页面加载数据快
+            ----前端渲染: 生成html
+                    优点：体积更小，灵活（便于修改数据），不安全，不利于SEO
             ----浏览器渲染：
                     ----输入url===>加载===>下载html，css,js等===>渲染（通过某种工具画出来）
 
@@ -259,11 +261,57 @@
                 module.exports={
                     a=4,b=5
                 } 
-            前端（带有模块系统）：
+            前端（带有模块系统的框架）：
                 vue,,angular,,react等------对js的一种补充
             后端（nodejs）：自带模块系统
+
+        13.nodejs服务端渲染（js模板引擎）
+            --使用服务端渲染框架
+                ejs:非破坏式框架--保留html原本结构
+                    --使用
+                        const ejs=require('ejs');
+                        ejs.renderFile('./template/ejs/1.html',{
+                            a:12,b:23,
+                            path:'component/page/footer'
+                        }).then(data=>{
+                            console.log('渲染成功')
+                            console.log(data)
+                        },err=>{
+                            console.log('渲染失败')
+                            console.log(err)
+                        })
+                        --ejs.renderFile('path编译文件路径',{需要渲染的数据}).then(data=>{
+                            console.log(data) //渲染成功的data模板数据
+                        },err=>{
+                            console.log(err) //渲染失败时的err
+                        })
+                        --编译的html文件
+                            --所有的需要编译渲染的数据都是用<% %>实现
+                            --几乎所有的js语法都可以使用，就是js模板引擎
+                                --输出
+                                    --转义输出：<%= xxx%> ---适用于其渲染的字符串中不存在html字符串
+                                    --非转义输出：<%- xxx%> ---适用于其渲染的字符串中存在html字符串
+                                --引入公共模板
+                                    <%- include('component/footer.html')%>
+                                    -- <%- include('path公共模板的路径')%>
+                                    --公共模板的路径同样可以设置成一个变量，保存在ejs.js中
+                                        --<%- include('path')%>
+                pug:破坏式框架--会破坏html的结构
+                    --以缩进来规范层级（父元素，子元素）
+                    --使用
+                        const pug=require('pug');
+                        console.log(pug.renderFile('./pug/1.pug',{
+                            pretty:true
+                        }))
+                        --pug.renderFile('path编译文件路径',{
+                            pretty:true   //编译后的文件是否换行凸显html结构
+                        })
+            --步骤
+                1.安装
+                    cnpm i ejs pug -D
                     
-        */
+        
+       }*/
     </script>
 </body>
 </html>
