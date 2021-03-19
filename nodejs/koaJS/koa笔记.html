@@ -96,7 +96,17 @@
                         console.log(ctx.request.fields);  //获取普通数据+文件基本信息
                         console.log(ctx.request.files);   //获取文件数据
                     })
-
+            
+            5.koa获取cookie
+                ----设置和获取：
+                    server.use(async(ctx,next)=>{
+                        console.log(ctx.cookies.get('a'))
+                        //ctx.cookies.get('cookie的名称')-----获取cookie
+                        ctx.cookies.set('b',5,{
+                            maxAge:86400*1000    //设置有效期一天后  单位：毫秒
+                        });
+                        //ctx.cookies.set('cookie的名称',cookie的值);----设置cookie
+                    })
                     
                     
          */
