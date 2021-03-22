@@ -97,7 +97,7 @@
                         console.log(ctx.request.files);   //获取文件数据
                     })
             
-            5.koa获取cookie
+            5.koa获取cookie和设置session
                 ----设置和获取：
                     server.use(async(ctx,next)=>{
                         console.log(ctx.cookies.get('a'))
@@ -107,7 +107,67 @@
                         });
                         //ctx.cookies.set('cookie的名称',cookie的值);----设置cookie
                     })
-                    
+                ----设置session（使用中间件koa-session）
+                    1.安装 
+                        cnpm i koa-session -D
+                    2.使用
+                        const session=require('koa-session');
+                        server.keys=[    //增加session的安全性
+                            'jdfkn',
+                            'jdfgkdf'
+                        ]
+                        server.use(session({},server)); //使用koa-session的中间件
+                        server.use(async ctx=>{
+                            if(!ctx.session['count']){
+                                ctx.session.count=1
+                            }else{
+                                ctx.session.count++
+                            }
+                            ctx.response.body=`第${ctx.session.count}次访问网站`
+                        })
+            
+            6.koa的数据库(安装nodejs的mysql模块)
+                ---1.安装
+                    数据库：(推荐使用mysql模块)
+                    cnpm install mysql -S
+                ---2.使用
+                    const mysql=require('mysql');
+                    const db=mysql.createConnection({
+                        host:'localhost',
+                        port:'3306',
+                        user:'root',
+                        passwoed:'root',
+                        database:'test'    //需要连接的数据库名
+                    })
+                    server.use(async ctx=>{
+                        db.query('SELECT * FROM user_table',(err,data,fileds)=>{   //查询连接的数据库下的表的数据
+                            if(err){
+                                console.log(err)
+                            }else{
+                                console.log(data)
+                            }
+                        })
+                    })
+
+            7.模板引擎:
+                1.安装
+                    cnpm i koa-pug koa-ejs -D
+                2.使用
+                    ejs:
+                    const ejs=require('koa-ejs');
+                    ejs(server,{
+                        root:pathlib.resolve('读取的html文件'),
+                        layout:false,
+                        viewExt:'ejs'  //文件模板的拓展名.ejs
+                    });
+                    server.use(async ctx=>{
+                        await ctx.render('1',{a:12,name:'1we'})
+                        await ctx.render('1文件路径',{a:12需要渲染的模板数据，对象格式})
+                    })
+                    渲染的html文件：(通过<%=xxx%>渲染数据)
+                        <span><%=a%></span>
+                        <div><%=name%></div>
+
                     
          */
     </script>
