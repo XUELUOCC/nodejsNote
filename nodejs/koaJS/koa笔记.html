@@ -40,7 +40,7 @@
                     let server=new koa();
                     server.listen(8080)
                     
-                    let r1=router;  //创建路由
+                    let r1=router();  //创建路由
                     server.use(r1.routes())  //使用路由
                     r1.get('/a',async(ctx,next)=>{
                         //ctx:常用的存在res,response,req,request
@@ -167,6 +167,46 @@
                     渲染的html文件：(通过<%=xxx%>渲染数据)
                         <span><%=a%></span>
                         <div><%=name%></div>
+
+            8.数据库transaction(事务)
+                --特点：要么都发生/要么都不发生（为了服务运行期间发生的意外等，事件一旦停止，所有服务就都会停止）
+                --事务执行的四个要素ACID
+                    --A:原子性：要么都发生，要么都不发生
+                    --C:持久性：只要事务提交，他的作用就是永久的
+                    --I:隔离性：各个事务之间是独立的
+                    --D:一致性：事务前后的状态是一致的
+
+            9.使用mysql-pro插件实现数据库连接
+                --优点：
+                    1.支持transaction事务
+                    2.防止注入（过滤一些和数据库差不多的字符等，保证书写的数据库语句正确）
+                --使用transaction
+                    1.安装
+                        cnpm i mysql-pro -D
+                    2.使用
+                        const Mysql=require('mysql-pro');
+                        let db=new Mysql({
+                            mysql:{
+                                post:'localhost',
+                                port:3306,
+                                user:'root',
+                                password:'root',
+                                database:'test'   //数据库名
+                            }
+                        })
+
+                        r1.get('/user',async ctx=>{
+                            let id=ctx.query.id;
+                            try{
+                                await db.startTransaction();  //开启事务
+                                //占位符（？），防止sql注入,占位符是sql语法本身的
+                                let data= await db.executeTransaction('SELECT * FROM user_table WHERE ID=?',[id]);  
+                                await db.stopTransaction();
+                                ctx.response.body=data;
+                            }catch(err){
+                                ctx.response.body='数据库正在维护...'
+                            }
+                        })
 
                     
          */

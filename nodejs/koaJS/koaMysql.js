@@ -20,5 +20,6 @@ server.use(async ctx=>{
         }
         console.log(data)
     });
+    ctx.response.body='aaaa'
    
 })
