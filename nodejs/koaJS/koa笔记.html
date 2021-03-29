@@ -199,7 +199,7 @@
                             let id=ctx.query.id;
                             try{
                                 await db.startTransaction();  //开启事务
-                                //占位符（？），防止sql注入,占位符是sql语法本身的
+                                //占位符（？），防止sql注入,占位符是sql语法本身的.传入的参数和数据是数组，[data数据]
                                 let data= await db.executeTransaction('SELECT * FROM user_table WHERE ID=?',[id]);  
                                 await db.stopTransaction();
                                 ctx.response.body=data;
@@ -208,7 +208,26 @@
                             }
                         })
 
-                    
+            10.node爬虫(采集器)
+                --抓取数据
+                --原理：让程序伪装成普通用户，实现“浏览网页”的功能，只要能进行访问，就能爬取数据。收费的同样可以爬取，只要补全漏洞
+                --步骤：
+                    //使用的是http，https模块
+                    const http=require('http');
+                    const https=require('https');
+                    let req=http.request('https://www/baidu.com',res=>{
+                        if(res.statusCode>=200 && res.statusCode<300 || res.statusCode==304){
+                            console.log('成功')
+                            
+                            let ws=fs.createWriteStream('baidu.html');
+                            ws.write()
+
+                        }else{
+                            console.log('失败',res.statusCode)
+                        }
+                    })
+
+
          */
     </script>
 </body>
