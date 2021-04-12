@@ -35,14 +35,14 @@
                     //koa中不存在server.get() server.post()等。只存在server.use(()=>{}),且use不存在地址，只有回调(ctx,next)=>{}
                     //要区分出get/post等，需要进行下载引用中间件koa-router
                     const koa=require('koa');
-                    const router=require('koa-router')
+                    const router=require('koa-router')()
 
                     let server=new koa();
                     server.listen(8080)
                     
-                    let r1=router();  //创建路由
-                    server.use(r1.routes())  //使用路由
-                    r1.get('/a',async(ctx,next)=>{
+                    server.use(router.routes())  //使用启动路由
+                    server.use(router.allowedMethods());//当所有路由中间件执行完成之后,若ctx.status为空或者404的时候,丰富response对象的header头.
+                    router.get('/a',async(ctx,next)=>{
                         //ctx:常用的存在res,response,req,request
                         //res,req：原生nodejs中的res,req
                         //request,response：koa封装过的req,res
@@ -54,7 +54,7 @@
                         ctx.request.headers       //获取请求的header
                         ...
                     }) //路由列表
-                    r1.post('/a',async(ctx,next)=>{})
+                    router.post('/a',async(ctx,next)=>{})
 
             3.访问静态文件
                 --1.使用koa自带的kao-static中间件
@@ -226,8 +226,65 @@
                             console.log('失败',res.statusCode)
                         }
                     })
+            
+            11.koa的路由的模块化和层级路由
+                --特点：见不同的路由模块进行分组，方便管理
+                --方法：
+                    1.结构
+                        --只存在一个主入口文件（server.js），其他的全部是子模块（routes文件夹）
 
+                    2.配置子模块，同时将子模块进行暴露出来
+                        const router=require('koa-router')();
+                        router.get('/',async(ctx,next)=>{
+                            ctx.response.body='测试列表接口list'
+                        })
+                        router.get('/list2',async(ctx,next)=>{
+                            ctx.response.body='第二个list列表'
+                        })
+                        module.exports=router;
+                    
+                    3.配置主入口文件，将子模块引入主入口文件sever.js
+                        const router=require('koa-router')();
 
+                        //引入子路由模块
+                        let list=require('./routes/list');
+                        let add=require('./routes/add');
+
+                        //配置子路由,当访问到/api时，启动list子路由模块;
+                        //路径是——“api/”——访问的是list子路由模块中的“/”路由
+                        router.use('/api',list.routes())
+
+                        //启动路由
+                        server.use(router.routes()).use(router.allowedMethods());
+
+                    4.引入子路由和配置子路由模块，可以一直细分下去
+            
+            12.vue-cli调用koajs的接口
+                ---vue-cli直接调用会出现跨域问题，此时需要设置proxy解决跨域
+                ---配置vue.config.js
+                        module.exports={
+                                devServer: {
+                                    port: '8080',
+                                    // open: true,
+                                    proxy: {
+                                        '/api': {
+                                            // /api 的意义在于，声明axios中url已/api开头的请求都适用于该规则，
+                                            // 注意是以/api开头，即：axios.post({url: '/api/xxx/xxx'})
+                                            target: 'http://192.168.1.104:3000',//服务器的真实地址
+                                            // 此处target的意义在于：造成跨域是因为访
+                                            // 问的host与我们的请求头里的origin不一致，所以我们要设置成一致，这个具体请看下文
+                                            changeOrigin: true,
+                                            pathRewrite: {'^/api': 'https://192.168.1.104:3000/api'}
+                                            // 此处是大部分文章都不会明说的的地方，
+                                            // 既然我们设置了代理，则所有请求url都已写成/api/xxx/xxx，那请求如何知道我们到底请求的是哪个服务器的数据呢
+                                            // 因此这里的意义在于， 以 /api开头的url请求，代理都会知道实际上应该请求那里，
+                                            // ‘我是服务器/api’，后面的/api根据实际请求地址决定，即我的请求url：/api/test/test，被代理后请求的则是
+                                            // https://我是服务器/api/test/test
+                                        }
+                                    }
+                                }
+                        }
+            
          */
     </script>
 </body>
