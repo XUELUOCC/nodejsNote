@@ -23,4 +23,7 @@ router.get('/list2',async(ctx,next)=>{
     ctx.response.body='第二个list列表'
 })
 
+let child=require('./child')
+router.use('/list',child.routes())
+
 module.exports=router;
