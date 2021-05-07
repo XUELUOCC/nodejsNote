@@ -57,7 +57,7 @@
                     router.post('/a',async(ctx,next)=>{})
 
             3.访问静态文件
-                --1.使用koa自带的kao-static中间件
+                --1.使用koa自带的koa-static中间件
                     --缺点：自带的static中间件读取文件没有进行缓存压缩，快被淘汰了
                 --2.使用koa-static-cache中间件
                     --存在缓存，压缩等功能
@@ -68,6 +68,8 @@
                             const path=require('path');
                             const staticCache=require('koa-static-cache');
                             server.use(staticCache(path.resolve('./www')))
+                            server.listen(8000)
+                            //可通过localhost:8000/(说明./www下的文件名)
 
             4.获取数据get post 文件数据
                 --get请求获取参数
@@ -326,6 +328,35 @@
                     app.listen(3000,()=>{
                         console.log('服务启动')
                     });
+
+            14.文件上传（koa实现）
+                ----通过前端将文件上传到服务器上，服务器接收将之保存下来
+                ----思路：
+                    ----1.通过ctx.request.files.file获取上传的文件信息
+                    ----2.通过fs文件系统，创建读取流，写入流，管道pipe,实现保存文件
+                ----方法
+                    router.post('/upload',async(ctx,next)=>{
+                        //上传单个文件
+                        const file=ctx.request.files.file; //获取上传的文件信息
+                        console.log(file)
+                        //创建读取流
+                        const reader=fs.createReadStream(file.path)
+                        let filePath = pathlib.join(__dirname, '../upload') + `/${file.name}`;
+                        //创建写入流
+                        const writer=fs.createWriteStream(filePath)
+                        //管道流向
+                        reader.pipe(writer)
+                        return ctx.response.body='上传成功'
+                    })
+            15.导出文件（blob，返回给前端blob文件流，前端点击实现下载导出）
+                ----思路：
+                    1.访问本地文件，使前端读取实现下载 
+                        ---fs中，路径是以服务器开启的路径为根路径
+                    2.使用koa-static-cache，koa-bodyparser，koa2-formidable
+                        koa-bodyparser： 将post请求的参数通过json格式返回，使用之后可通过ctx.request.body获取参数
+                            --安装：npm install --save koa-bodyparser
+                        koa-static-cache:访问静态资源
+                        koa2-formidable：获取上传的文件信息，可解析ctx.request.body,ctx.request.files
          */
     </script>
 </body>
