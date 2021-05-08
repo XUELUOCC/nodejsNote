@@ -335,6 +335,22 @@
                     ----1.通过ctx.request.files.file获取上传的文件信息
                     ----2.通过fs文件系统，创建读取流，写入流，管道pipe,实现保存文件
                 ----方法
+                    //上传文件
+                    server.use(koaBody({   //会与Formidable插件发生冲突
+                        multipart:true,
+                        formidable:{
+                            maxFileSize:200*1024*1024
+                        }
+                    }))
+                    //解决跨域
+                    server.use(cors({
+                        origin:'*'
+                    }))
+
+                    //上传文件路由
+                    let upload=require('./router/upload');
+                    router.use('/api',upload.routes())
+                    
                     router.post('/upload',async(ctx,next)=>{
                         //上传单个文件
                         const file=ctx.request.files.file; //获取上传的文件信息
@@ -364,6 +380,14 @@
                         即：错误：
                             let data=fs.readFileSync('files/test.xls','utf-8')  //读取的内容是utf-8格式
                         ------------------------------------------
+                        //创建blob文件流，前端接收
+                        server.use(Bodyparser())  //解析post请求，获取参数
+                        // server.use(Formidable())  //解析formdata数据（但会与koa-body发生冲突，koa-body同样可解析），即获取ctx.request.body,ctx.request.files,无此插件，其值为空
+                        server.use(staticCache(__dirname+'/files'))
+
+                        let uploadBlob=require('./router/uploadBlob');
+                        router.use('/api',uploadBlob.routes())
+
                         let data=fs.readFileSync('files/test.xls')
                         router.get('/uploadBlob/:name',async(ctx,next)=>{
                             console.log('发送文件，准备创建二进制流')
