@@ -357,6 +357,28 @@
                             --安装：npm install --save koa-bodyparser
                         koa-static-cache:访问静态资源
                         koa2-formidable：获取上传的文件信息，可解析ctx.request.body,ctx.request.files
+
+                    3.代码：
+                        //读取文件（excel/word）时，不能通过utf-8格式进行读取，否则读取后的结果的编码就不是原编码，
+                        而是utf-8格式，此时通过读取进行下载的文件里面就会出现中文乱码,因为编码都不是excel类的编码
+                        即：错误：
+                            let data=fs.readFileSync('files/test.xls','utf-8')  //读取的内容是utf-8格式
+                        ------------------------------------------
+                        let data=fs.readFileSync('files/test.xls')
+                        router.get('/uploadBlob/:name',async(ctx,next)=>{
+                            console.log('发送文件，准备创建二进制流')
+                            let tableData=xlsx.parse('files/test.xls')
+                            for (let i in tableData){
+                                console.log(tableData[i])
+                            }
+                            const name=ctx.params.name
+                            //或者是表单提交from
+                            // const data = ctx.requst.body
+                            //koa自带的下载
+                            ctx.set('Content-Type', 'application/vnd.ms-excel;charset=utf-8');
+                            ctx.set("Content-Disposition", "attachment; filename=" + "test.xls"); //这里是告诉浏览器下载一个附件，名字叫什么 自己动态定义
+                            ctx.body=data
+                        })
          */
     </script>
 </body>
