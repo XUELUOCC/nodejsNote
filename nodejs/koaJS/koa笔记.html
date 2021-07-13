@@ -98,6 +98,16 @@
                         console.log(ctx.request.fields);  //获取普通数据+文件基本信息
                         console.log(ctx.request.files);   //获取文件数据
                     })
+                ----post获取数据
+                    ---通过使用中间件koa-bodyparser
+                        cnpm i koa-body-parser
+
+                        const bodyParser=require('koa-bodyparser')
+                        server.use(bodyParser())  //接收post请求
+                        router.post('/test',async(ctx,next)=>{
+                            ctx.response.body='测试'
+                            console.log(ctx.request.body) //获取前端post请求传过来的数据
+                        })
             
             5.koa获取cookie和设置session
                 ----设置和获取：
